@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Green Earth | Global Deforestation & Afforestation Dashboard</title>
+
+  <!-- Leaflet.js + Font Awesome -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #eef8f2;
+    }
+    header {
+      background: #1b5e20;
+      color: white;
+      padding: 25px 20px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      letter-spacing: 1px;
+    }
+    header p {
+      margin: 5px 0 0;
+      font-size: 0.95rem;
+      font-weight: 300;
+    }
+    #map {
+      height: 600px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+    .stats-panel {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin: 20px auto;
+      gap: 1rem;
+      max-width: 1200px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      flex: 1;
+      min-width: 260px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease;
+    }
+    .card:hover {
+      transform: scale(1.02);
+    }
+    .card h3 {
+      color: #1b5e20;
+      margin-bottom: 10px;
+    }
+    .legend {
+      padding: 12px;
+      background: white;
+      border-radius: 10px;
+      line-height: 1.6;
+      max-width: 300px;
+      position: absolute;
+      bottom: 90px;
+      left: 10px;
+      z-index: 500;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .popup-img {
+      width: 100px;
+      border-radius: 6px;
+    }
+    iframe.epicollect-embed {
+      border: none;
+      width: 100%;
+      height: 600px;
+      margin-top: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1><i class="fas fa-leaf"></i> Green Earth Dashboard</h1>
+  <p>Real-time forest monitoring with AI, IoT, Drone, Satellite & Blockchain Technology</p>
+</header>
+
+<!-- Stats Cards -->
+<div class="stats-panel">
+  <div class="card"><h3>🌲 Deforestation Alerts</h3><p><strong>157</strong> Active AI-verified zones</p></div>
+  <div class="card"><h3>🚨 Chainsaw Detections</h3><p><strong>12</strong> Detected in last 24 hrs (IoT Audio)</p></div>
+  <div class="card"><h3>📍 Ranger Dispatches</h3><p><strong>29</strong> Deployed (AI Routing)</p></div>
+  <div class="card"><h3>🛰️ Reforested Zones</h3><p><strong>7,300 ha</strong> Restored (Pilot Sites)</p></div>
+  <div class="card"><h3>⛓️ Carbon Credits (Blockchain)</h3><p><strong>79,000 tons CO₂</strong> Certified</p></div>
+</div>
+
+<!-- Leaflet Map -->
+<div id="map"></div>
+
+<!-- Legend -->
+<div class="legend">
+  <strong>Legend:</strong><br>
+  🔴 Critical Alert (Deforestation)<br>
+  🟠 Chainsaw Detected (Audio IoT)<br>
+  🌱 Afforestation Projects (w/ best-fit plant)<br>
+  📸 Before & After visuals (AI-assisted)
+</div>
+
+<!-- EpiCollect Embed: Replace with your project -->
+<iframe class="epicollect-embed"
+  src="https://five.epicollect.net/project/greenwatch/form?embedded=true">
+</iframe>
+
+<!-- Leaflet Script -->
+<script>
+  const map = L.map('map', {
+    zoomControl: false   // disable default zoom position
+  }).setView([22.9734, 78.6569], 5);
+
+  L.control.zoom({
+    position: 'bottomright' // reposition zoom controls
+  }).addTo(map);
+
+  L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    maxZoom: 17,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap contributors</a>'
+  }).addTo(map);
+
+  // 🛑 Deforestation Alerts
+  const deforestationAlerts = [
+    { lat: 21.1458, lng: 79.0882, area: "15ha", severity: "critical" }, // Nagpur
+    { lat: 14.167, lng: 75.0403, area: "9.2ha", severity: "high" },     // Karnataka
+  ];
+  deforestationAlerts.forEach(alert => {
+    L.circle([alert.lat, alert.lng], {
+      color: "#FF0000",
+      fillColor: "#FF0000",
+      fillOpacity: 0.4,
+      radius: 5000
+    }).addTo(map)
+    .bindPopup(`<b>Critical Deforestation Alert!</b><br>Area lost: ${alert.area}`);
+  });
+
+  // 🔊 IoT Chainsaw Detection
+  const chainsawSpots = [
+    { lat: 26.9124, lng: 75.7873 }, // Jaipur
+    { lat: 23.6102, lng: 85.2799 }  // Jharkhand
+  ];
+  chainsawSpots.forEach(loc => {
+    L.marker([loc.lat, loc.lng])
+      .addTo(map)
+      .bindPopup(`🔊 <b>Chainsaw Detected</b><br>(Audio Sensor)`);
+  });
+
+  // 🌿 Afforestation Sites
+  const afforestationAreas = [
+    {
+      pos: [10.8505, 76.2711], // Kerala
+      plant: "Rosewood, Bamboo",
+      imgBefore: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Forest-fire.jpg/320px-Forest-fire.jpg",
+      imgAfter: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Bamboo-forest.jpg/320px-Bamboo-forest.jpg"
+    },
+    {
+      pos: [24.6637, 93.9063], // Manipur
+      plant: "Sal, Mahogany",
+      imgBefore: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Amazon_deforestation_satellite_image.jpg/320px-Amazon_deforestation_satellite_image.jpg",
+      imgAfter: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Sal_forest_in_India.jpg/320px-Sal_forest_in_India.jpg"
+    }
+  ];
+
+  afforestationAreas.forEach(site => {
+    const content = `
+      <b>🌿 Afforestation Alert</b><br>
+      Suggested Plantations: <strong>${site.plant}</strong><br><br>
+      <b>Before:</b><br><img class="popup-img" src="${site.imgBefore}"/><br>
+      <b>After:</b><br><img class="popup-img" src="${site.imgAfter}"/>
+    `;
+    L.marker(site.pos).addTo(map)
+      .bindPopup(content);
+  });
+</script>
+
+</body>
+</html>
+```
+
+---
+
+### ✅ Notes:
+
+- **EpiCollect Integration:** Replace the link in the `<iframe>` with your **actual EpiCollect project link** for real data submission. Right now, it's embedded with a sample one (`greenwatch`).
+- **Zoom Control:** Repositioned to bottom-right for better UX.
+- **Smooth Visuals:** Cards now have hover effects, rounded corners, and subtle shadows.
+- **Everything Still Intact:** Technologies like **AI verification**, **IoT Audio**, **Drone/Satellite**, **Blockchain Credits** are preserved and enhanced.
+
+---
+
+Would you like EpiCollect to submit **geo-tagged reports** onto the map dynamically via an API too? That would require backend integration or API bridge.
